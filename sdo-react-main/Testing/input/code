@@ -1,5 +1,7 @@
-a=input()
-b=input()
-c=input()
+import sys
+a=int(input())
+b=int(input())
+c=int(input())
 d=a+b-c
 e=d+b
+print(sys.argv)

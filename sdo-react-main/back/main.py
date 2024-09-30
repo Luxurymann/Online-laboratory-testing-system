@@ -1,7 +1,7 @@
 import subprocess
 from base64 import b64encode
-from typing import Dict, Any, List, Type
-from fastapi import Request
+from typing import Dict, Any, List, Type, Annotated
+from fastapi import Request, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
@@ -236,3 +236,63 @@ async def execute_testing_main():
         return JSONResponse(content={"result": cleaned_output})
     except Exception as e:
         return JSONResponse(content={"error": str(e)})
+
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    code_path="../Testing/input/timed.py"
+    with open(code_path,"wb") as f:
+        f.write(file.file.read())
+    return {"filename": file.filename}
+
+@app.post("/uploadfiles/")
+async def create_upload_files(files: list[UploadFile]):
+    return {"filenames": [file.filename for file in files]}
+
+@app.post("/executeUploadedFile")
+async def execute_uploaded_file(file: UploadFile):
+    try:
+        testing_main_path = "../Testing/main.py"
+        code_path="../Testing/input/code"
+        with open(code_path,"wb") as f:
+            f.write(file.file.read())
+        result = subprocess.run(["python", testing_main_path],capture_output=True,text=True)
+        cleaned_output = result.stdout.replace("[", "").replace("]", "").replace("\n", "")
+        return JSONResponse(content={"result": cleaned_output})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)})
+    
+@app.post("/executeUploadedFiles")
+async def execute_uploaded_files(files: list[UploadFile]):
+    try:
+        testing_main_path = "../back/Testing/Formulas_analize_system/analise_formula.py"
+        code_path="../back/Testing/input/code"
+        formulas_techer_path="../back/Testing/input/formular_teacher"
+        input_variables_path="../back/Testing/input/input_variables"
+        with open(code_path,"wb") as f:
+            f.write(files[0].file.read())
+        with open(formulas_techer_path,"wb") as f:
+            f.write(files[1].file.read())
+        with open(input_variables_path,"wb") as f:
+            f.write(files[2].file.read())
+        result = subprocess.run(["python", testing_main_path],capture_output=True,text=True)
+        cleaned_output = result.stdout.replace("[", "").replace("]", "").replace("\n", "")
+        return JSONResponse(content={"result": cleaned_output})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)})
+
+@app.post("/formAutoTest")
+async def form_auto_test(count: int):
+    testing_main_path = "../Testing/main.py"
+    ListOfTest=[]
+    SingleTest=[]
+    OutPut=""
+    for i in range(count):
+        Input=[]
+        for i in range(3):
+            Input.append(random.random()*1000)
+        result=subprocess.run(["python", testing_main_path],capture_output=True,text=True,stdin=Input)
+        
