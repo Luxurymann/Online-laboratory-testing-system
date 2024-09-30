@@ -1,144 +1,162 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import FileUploadButton from './Button'
-import { Link, useParams } from "react-router-dom";
-import axios from 'axios';
-const Section = styled.section`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding-top: 20px;
-    padding-bottom: 30px;
-        .block__pop{
-            width: 1248px;
-            height: 156px;
-            background-color: #D9D9D9;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .block__pop-link{
-            width: 1098px;
-            height: 75px;
-            background-color: #FFFFFF;
-            color: #000000;
-            cursor: pointer;
-            border-radius: 10px;
-            border-style: none;
-            font-family: 'Montserrat';
-            font-size: 16px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .block__pop-link:hover{
-            background-color: #C8D5F6;
-            color: #FFFFFF;
-            transition: 0.7s;
-        }
-`
-const Block = styled.div`
-    width: 1248px;
-    height: ${({ $Height }) => ($Height ? '556px' : '267px')};
-    background-color: ${({ $Fon }) => ($Fon ? '#D5DEF6' : '#E2EDD0')};
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: ${({ $Center }) => ($Center ? 'flex-start' : 'center')};
-    justify-content: center;
-    gap: ${({$gap}) => $gap ? '25px' : '0'};
-`
-const Task = styled.h2`
-    font-family: 'Montserrat';
-    font-size: 16px;
-    line-height: 27px;
-    font-weight: 400;
-    width: 1098px;
-    height: 63px;
-`
-const Span = styled.span`
-    padding-left: 7%;
-`
-const Text = styled.p`
-    font-family: 'Montserrat';
-    font-size: 16px;  
-    font-size:${({$size}) => ($size ? '18px' : '16px')} ;
-    font-weight: ${({$bold}) => ($bold ? 'bold' : '')};
-    color: #000000;
-`
-const LabaStud = () => {
-    const {id} = useParams()
-    const [labItem, setLabItem] = useState(null)
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { Link, useParams } from 'react-router-dom';
+import FileUploader from './Button';
+import base64 from 'base-64';
 
-    useEffect(() => {
-      if (id) {
-        axios.get(`http://0.0.0.0:8002/task/${id}`)
-          .then((response) => {
-            console.log(response.data);
-            setLabItem(response.data.Task);
+// Стили для страницы
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  font-family: "Montserrat", sans-serif;
+  align-items: center;
+`;
+
+const BlockTask = styled.div`
+  width: 1248px;
+  background-color: #D5DEF6;
+  padding: 30px;
+  border-radius: 7px;
+`;
+
+const BlockTest = styled.div`
+  width: 1248px;
+  background-color: #E2EDD0;
+  padding: 30px;
+  border-radius: 7px;
+`;
+
+const BlockTry = styled.div`
+  width: 1248px;
+  background-color: #D9D9D9;
+  padding: 30px;
+  border-radius: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Title = styled.h2`
+  font-size: 16px;
+  margin-bottom: 10px;
+`;
+
+const Text = styled.p`
+  font-size: 16px;
+  line-height: 1.5;
+`;
+
+const Button = styled.button`
+  padding: 10px;
+  width: 1100px;
+  background-color: white;
+  border-style: none;
+  border-radius: 7px;
+  font-family: "Montserrat";
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    background: #E2EDD0;
+    color: #000;
+    transition: 0.3s;
+  }
+`;
+
+const StyledLink = styled(Link)`
+  text-decoration: none;  // Убираем подчеркивание
+`;
+
+// Компонент страницы с блоками
+const LabaStud = () => {
+  const [file, setFile] = useState(null);
+  const { id } = useParams(); // Получаем id лабораторной
+
+  const handleSubmit = async () => {
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onload = () => {
+        const encodedFile = base64.encode(
+          String.fromCharCode(...new Uint8Array(reader.result))
+        );
+        fetch(`http://0.0.0.0:8002/check/1`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({ file: encodedFile }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Результаты тестов:', data);
           })
           .catch((error) => {
-            console.error(error);
+            console.error('Ошибка:', error);
           });
-      }
-    }, [id]);
-    
-      
-
-    if(!labItem){
-        return <div>Loading...</div>
+      };
+    } else {
+      alert('Пожалуйста, выберите файл для загрузки.');
     }
+  };
 
-    return ( 
-        <>
-            <Section>
-                <Block $Height $Fon $Center >
-                    <Span>
-                        <Task>
-                            {labItem.task_description}
-                        </Task>   
-                    </Span>
-                    <Span>
-                        <Text $size $bold>
-                            Формат входных данных
-                        </Text>
-                            <Text>
-                                Вводятся три числа.
-                            </Text>
-                                <Text $size $bold>
-                                    Формат входных данных
-                                </Text>
-                                    <Text>
-                                        Вводятся три числа.
-                                    </Text>
-                                        <Text $size $bold>
-                                            Sample Input:
-                                        </Text>
-                                            <Text>
-                                                1 2 3
-                                            </Text>
-                                                <Text $size $bold>
-                                                    Sample Output:
-                                                </Text>
-                                                    <Text>
-                                                        3
-                                                    </Text>   
-                    </Span>
-                </Block>
-                <Block $gap>
-                    <FileUploadButton/>
-                </Block>
-                <div className="block__pop">
-                    <Link to='/attempts' className="block__pop-link">
-                        Мои попытки
-                    </Link>
-                </div>
-            </Section>
-        </>
-     );
-}
- 
+  return (
+    <Container>
+      {/* Первый блок: Условие задачи */}
+      <BlockTask>
+        <Text>
+          Даны три целых числа. Найдите наибольшее из них (программа должна вывести ровно одно целое число). Под наибольшим в этой задаче понимается число, которое не меньше, чем любое другое.
+        </Text>
+        <Text>
+          <strong>Формат входных данных:</strong> Вводятся три числа.
+        </Text>
+        <Text>
+          <strong>Формат выходных данных:</strong> Выведите ответ на задачу.
+        </Text>
+        <Text>
+          <strong>Sample Input:</strong>
+        </Text>
+        <Text>1<br />2<br />3</Text>
+        <Text>
+          <strong>Sample Output:</strong>
+        </Text>
+        <Text>3</Text>
+      </BlockTask>
+
+      {/* Второй блок: Описание тестов */}
+      <BlockTest>
+        <Title>Типы тестов, используемые в данной лабораторной работе:</Title>
+        <ul>
+          <li>Проверка формулы</li>
+          <br />
+          <li>Автотесты</li>
+          <br />
+          <li>Проверка скорости выполнения</li>
+          <br />
+          <li>Проверка чего-нибудь еще</li>
+        </ul>
+      </BlockTest>
+
+      {/* Третий блок */}
+      <BlockTask>
+        <Title>Ответ в виде файла:</Title>
+        <FileUploader file={file} setFile={setFile} onSubmit={handleSubmit} />
+      </BlockTask>
+
+      {/* Четвертый блок: кнопка Мои попытки */}
+      <BlockTry>
+        <StyledLink to={`/attempts/${id}`}>
+          <Button>
+            <Text>Мои попытки</Text>
+          </Button>
+        </StyledLink>
+      </BlockTry>
+    </Container>
+  );
+};
+
 export default LabaStud;

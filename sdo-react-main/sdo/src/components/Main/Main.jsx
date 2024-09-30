@@ -14,7 +14,7 @@ const Section = styled.section`
 const SectionHead = styled.h1`
     color: #000;
     font-family: 'Montserrat';
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 500;
     line-height: 27px; 
 `
@@ -24,12 +24,13 @@ const Block = styled.div`
     padding-top: 35px;
 
     .section__block-btn{
-    width: 395px;
-    height: 138px;
+    width: 400px;
+    height: 150px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Montserrat';
+    font-size: 24px;
     cursor: pointer;
     text-decoration: none;
     color: #000;
@@ -71,7 +72,7 @@ const Main = () => {
               to="/login" 
               onClick={() => handleLogin('teacher')}
             > 
-              Преподователь
+              Преподаватель
             </Link>
           </Block>
         </Section>

@@ -26,7 +26,7 @@
 
     .header__nav-lr{
         margin-right: 40px;
-        color: #C8D5F6;
+        color: #415588;
         text-decoration: none;
         font-size: 16px;
         font-family: 'Montserrat';
@@ -43,7 +43,7 @@
     .header__nav-lr:hover{
         color: #FFF;
         background-color: #DDE5F9;
-        transition: 0.5s;
+        transition: 0.3s;
     }
     `;
 
