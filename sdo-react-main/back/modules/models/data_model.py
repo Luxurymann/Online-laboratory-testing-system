@@ -1,7 +1,6 @@
-from typing import List, Any
+from typing import Any, List, Literal
 
 from pydantic import BaseModel, Field
-from typing import Literal
 
 
 class TestCaseModel(BaseModel):
@@ -25,27 +24,38 @@ class FunctionModel(BaseModel):
     name: str = Field(description="Name of tested function")
     test_cases: List[TestCaseModel] = Field(description="Data used for validation")
     formulas: List[FormulaModel] | None = Field(description="Formulas test cases")
-    linked_formulas: List[LinkedFormulaModel] | None = Field(default=None, description="Formula linkage")
-
+    linked_formulas: List[LinkedFormulaModel] | None = Field(
+        default=None, description="Formula linkage"
+    )
 
 class ConstructionModel(BaseModel):
-    name: str = Field(description="Construction name like \"for\" and etc")
-    state: bool = Field(description="True for checking of construction presence and false for not")
-
+    name: str = Field(description="Construction name like 'for' and etc")
+    state: bool = Field(
+        description="True for checking of construction presence and false for not"
+    )
 
 class CodeLengthModel(BaseModel):
-    symbols: int | None = Field(default=None, description="File length in symbols except whitespace symbols. "
-                                                          "None is for disabling check")
-    rows: int | None = Field(default=None, description="File length in rows. None for disabling")
+    symbols: int | None = Field(
+        default=None,
+        description="File length in symbols except whitespace symbols. None is for disabling check",
+    )
+    rows: int | None = Field(
+        default=None, description="File length in rows. None for disabling"
+    )
 
 
 class TestModel(BaseModel):
     task_description: str = Field(description="Task description", max_length=1024)
     task_text: str = Field(description="Task name", max_length=1024)
-    # time_work: int = Field(description="max time of program work")
-    functions: List[FunctionModel] | None = Field(default=None, description="Test case for function testing")
-    constructions: List[ConstructionModel] | None = Field(default=None, description="List of constructions for check")
-    length_checks: List[CodeLengthModel] | None = Field(default=None, description="Code length checks")
+    functions: List[FunctionModel] | None = Field(
+        default=None, description="Test case for function testing"
+    )
+    constructions: List[ConstructionModel] | None = Field(
+        default=None, description="List of constructions for check"
+    )
+    length_checks: List[CodeLengthModel] | None = Field(
+        default=None, description="Code length checks"
+    )
 
 
 class TestOutput(BaseModel):
@@ -111,13 +121,13 @@ class StudyGroupResponseModel(BaseModel):
 
 
 class PyTestModel(BaseModel):
-    taskDescription: str = Field(description="Task description", max_length=1024)
+    task_description: str = Field(description="Task description", max_length=1024)
     spoiler: str = Field(description="Name for function and her attributes", max_length=1024)
-    pyTests: str = Field(description="Pytest for task", max_length=1024)
+    py_tests: str = Field(description="Pytest for task", max_length=1024)
 
 
 class PyTestQueryData(BaseModel):
-    labTask: PyTestModel = Field(description="Test task")
+    lab_task: PyTestModel = Field(description="Test task")
 
 
 class CheckProgram(BaseModel):
@@ -125,8 +135,8 @@ class CheckProgram(BaseModel):
 
 
 class TaskInfo(BaseModel):
-    taskDecsription: str
-    defName: str
+    task_decsription: str
+    def_name: str
 
 
 __all__ = ["TestModel", "CodeLengthModel", "ConstructionModel", "FunctionModel", "FormulaModel", "LinkedFormulaModel",
