@@ -150,7 +150,7 @@ async def get_pytest_by_id(id_val: int):
     
     
 async def insert_pytestVals(data: PyTestModel):
-    pytest: PyTest = PyTest(description=data.taskDescription, spoiler=data.spoiler, pyTests=data.pyTests)
+    pytest: PyTest = PyTest(description=data.task_description, spoiler=data.spoiler, py_tests=data.py_tests)
     await add_pydata(pytest)
     return "success"
 

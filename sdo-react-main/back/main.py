@@ -205,20 +205,20 @@ async def get_students_groups():
 
 @app.post("/newTaskPyTest")
 async def newTaskForPyTest(item: PyTestQueryData):
-    answer: str = await insert_pytestVals(item.labTask)
+    answer: str = await insert_pytestVals(item.lab_task)
     return JSONResponse(content={"status": answer})
 
 
 @app.get("/checkbypytest/{id}")
 async def getDefName(id):
     test: Type[PyTest] = await get_pytest_by_id(id)
-    return TaskInfo(defName=test.spoiler, taskDecsription=test.description)
+    return TaskInfo(def_name=test.spoiler, task_decsription=test.description)
 
 
 @app.post("/checkbypytest/{id}")
 async def checkTaskByPytest(id, item: CheckProgram):
     test: Type[PyTest] = await get_pytest_by_id(id)
-    pytest = test.pyTests
+    pytest = test.py_tests
     try:
         exec(item.code)
         exec(pytest)
@@ -295,4 +295,3 @@ async def form_auto_test(count: int):
         for i in range(3):
             Input.append(random.random()*1000)
         result=subprocess.run(["python", testing_main_path],capture_output=True,text=True,stdin=Input)
-        

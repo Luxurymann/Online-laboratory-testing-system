@@ -1,9 +1,22 @@
 import enum
 from datetime import datetime
 from typing import List
-from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped
-from sqlalchemy import Integer, String, ForeignKey, Text, DateTime, Enum
-from sqlalchemy import ForeignKey
+
+from sqlalchemy import (
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer, 
+    String, 
+    Text 
+)
+
+from sqlalchemy.orm import (
+    DeclarativeBase, 
+    Mapped, 
+    mapped_column, 
+    relationship
+)
 
 
 class Base(DeclarativeBase):
@@ -15,18 +28,25 @@ class Test(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column()
     description: Mapped[str] = mapped_column()
-    # max_time: Mapped[int] = mapped_column()
-    functions: Mapped[List["Function"]] = relationship(back_populates="test", cascade="all, delete-orphan")
-    lengths: Mapped[List["CodeLength"]] = relationship(back_populates="test", cascade="all, delete-orphan")
-    constructions: Mapped[List["Construction"]] = relationship(back_populates="test", cascade="all, delete-orphan")
-    study_group_tests: Mapped[List["StudyGroupTest"]] = relationship("StudyGroupTest", back_populates="test")
+    functions: Mapped[List["Function"]] = relationship(
+        back_populates="test", cascade="all, delete-orphan"
+    )
+    lengths: Mapped[List["CodeLength"]] = relationship(
+        back_populates="test", cascade="all, delete-orphan"
+    )
+    constructions: Mapped[List["Construction"]] = relationship(
+        back_populates="test", cascade="all, delete-orphan"
+    )
+    study_group_tests: Mapped[List["StudyGroupTest"]] = relationship(
+        "StudyGroupTest", back_populates="test"
+    )
 
 class PyTest(Base):
     __tablename__ = "PyTest"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     description: Mapped[str] = mapped_column()
     spoiler: Mapped[str] = mapped_column()
-    pyTests: Mapped[str] = mapped_column()
+    py_tests: Mapped[str] = mapped_column()
 
 class Function(Base):
     __tablename__ = "Function"
@@ -34,8 +54,12 @@ class Function(Base):
     func_name: Mapped[str] = mapped_column(nullable=False)
     testid: Mapped[int] = mapped_column(ForeignKey("Test.id"))
     test: Mapped["Test"] = relationship(back_populates="functions")
-    datas: Mapped[List["Data"]] = relationship(back_populates="function_t", cascade="all, delete-orphan")
-    formulas: Mapped[List["Formula"]] = relationship(back_populates="function_t", cascade="all, delete-orphan")
+    datas: Mapped[List["Data"]] = relationship(
+        back_populates="function_t", cascade="all, delete-orphan"
+    )
+    formulas: Mapped[List["Formula"]] = relationship(
+        back_populates="function_t", cascade="all, delete-orphan"
+    )
 
 
 class Data(Base):
@@ -78,18 +102,32 @@ class StudyGroup(Base):
     __tablename__ = "StudyGroup"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
-    students: Mapped[List["User"]] = relationship("User", back_populates="study_group")
-    study_group_tests: Mapped[List["StudyGroupTest"]] = relationship("StudyGroupTest", back_populates="study_group")
+    students: Mapped[List["User"]] = relationship(
+        "User", back_populates="study_group"
+    )
+    study_group_tests: Mapped[List["StudyGroupTest"]] = relationship(
+        "StudyGroupTest", back_populates="study_group"
+    )
 
 
 class StudyGroupTest(Base):
     __tablename__ = 'study_group_test'
-    study_group_id: Mapped[int] = mapped_column(Integer, ForeignKey('StudyGroup.id'), primary_key=True)
-    test_id: Mapped[int] = mapped_column(Integer, ForeignKey('Test.id'), primary_key=True)
-    assignment_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    study_group_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('StudyGroup.id'), primary_key=True
+    )
+    test_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('Test.id'), primary_key=True
+    )
+    assignment_date: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False
+    )
     deadline: Mapped[datetime] = mapped_column(DateTime)
-    study_group: Mapped[StudyGroup] = relationship("StudyGroup", back_populates="study_group_tests")
-    test: Mapped[Test] = relationship("Test", back_populates="study_group_tests")
+    study_group: Mapped[StudyGroup] = relationship(
+        "StudyGroup", back_populates="study_group_tests"
+    )
+    test: Mapped[Test] = relationship(
+        "Test", back_populates="study_group_tests"
+    )
 
 
 class Roles(enum.Enum):
@@ -104,16 +142,26 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     role: Mapped[Roles] = mapped_column(Enum(Roles), nullable=False)
-    study_group_id: Mapped[int] = mapped_column(Integer, ForeignKey('StudyGroup.id'), nullable=True)
-    study_group: Mapped[StudyGroup] = relationship("StudyGroup", back_populates="students")
-    test_results: Mapped[List["TestResult"]] = relationship("TestResult", back_populates="user")
+    study_group_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('StudyGroup.id'), nullable=True
+    )
+    study_group: Mapped[StudyGroup] = relationship(
+        "StudyGroup", back_populates="students"
+    )
+    test_results: Mapped[List["TestResult"]] = relationship(
+        "TestResult", back_populates="user"
+    )
 
 
 class TestResult(Base):
     __tablename__ = "TestResult"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('User.id'), nullable=False)
-    test_id: Mapped[int] = mapped_column(Integer, ForeignKey('Test.id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('User.id'), nullable=False
+    )
+    test_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('Test.id'), nullable=False
+    )
     test_results: Mapped[str] = mapped_column(Text, nullable=False)
     test_errors: Mapped[str] = mapped_column(Text, nullable=False)
     test_passed: Mapped[str] = mapped_column(Text, nullable=False)
