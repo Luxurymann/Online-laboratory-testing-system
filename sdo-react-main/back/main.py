@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 
+from testing.test import check_file
 from modules.database.dbconnector import *
 from modules.models.data_model import *
 from modules.models.db_class import *
@@ -129,11 +130,13 @@ async def get_tasks() -> JSONResponse:
     content: Dict[str, str] = {str(test.id): test.description for test in await get_all_tests()}
     return JSONResponse(content=content)
 
+
 @app.get("/task/{id}")
 async def get_task(id: int):
     task = await get_test(id)
-    response = {"Task" : TestOutput(id=task.id, task_description=task.description, task_text=task.name)}
+    response = {"Task": TestOutput(id=task.id, task_description=task.description, task_text=task.name)}
     return response
+
 
 @app.post("/check/{id}")
 async def check_task(id, item: CheckModel) -> JSONResponse:
@@ -198,11 +201,6 @@ async def get_students_groups():
     return get_students_groups_db()
 
 
-# @app.get("/{smth}", status_code=404)
-# async def not_found(smth: str) -> HTMLResponse:
-#   return HTMLResponse(content=f"Error 404, {smth} is not valid gateway", status_code=404)
-
-
 @app.post("/newTaskPyTest")
 async def newTaskForPyTest(item: PyTestQueryData):
     answer: str = await insert_pytestVals(item.labTask)
@@ -237,62 +235,82 @@ async def execute_testing_main():
     except Exception as e:
         return JSONResponse(content={"error": str(e)})
 
-@app.post("/files/")
+
+@app.get('/testFile/')
+async def checking_file(title: str):
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    teacher_formula_path = os.path.join(base_path, 'testing', 'test_files', 'teacher_formula')
+    input_variables_path = os.path.join(base_path, 'testing', 'test_files', 'input_variables')
+    code_path = os.path.join(base_path, 'testing', 'test_files', title)
+    result_output = check_file(teacher_formula_path, input_variables_path, code_path)
+    return JSONResponse(
+        content={
+            "formulas": result_output[0],
+            "result": result_output[1]
+        }
+    )
+
+
+@app.post("/files")
 async def create_file(file: Annotated[bytes, File()]):
     return {"file_size": len(file)}
 
-@app.post("/uploadfile/")
+
+@app.post("/uploadFile")
 async def create_upload_file(file: UploadFile):
-    code_path="../Testing/input/timed.py"
-    with open(code_path,"wb") as f:
+    code_path = "testing/test_files/studentCode.txt"
+    with open(code_path, "wb") as f:
         f.write(file.file.read())
     return {"filename": file.filename}
 
-@app.post("/uploadfiles/")
+
+@app.post("/uploadFiles")
 async def create_upload_files(files: list[UploadFile]):
     return {"filenames": [file.filename for file in files]}
+
 
 @app.post("/executeUploadedFile")
 async def execute_uploaded_file(file: UploadFile):
     try:
         testing_main_path = "../Testing/main.py"
-        code_path="../Testing/input/code"
-        with open(code_path,"wb") as f:
+        code_path = "testing/test_files/code.txt"
+        with open(code_path, "wb") as f:
             f.write(file.file.read())
-        result = subprocess.run(["python", testing_main_path],capture_output=True,text=True)
-        cleaned_output = result.stdout.replace("[", "").replace("]", "").replace("\n", "")
-        return JSONResponse(content={"result": cleaned_output})
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)})
-    
-@app.post("/executeUploadedFiles")
-async def execute_uploaded_files(files: list[UploadFile]):
-    try:
-        testing_main_path = "../back/Testing/Formulas_analize_system/analise_formula.py"
-        code_path="../back/Testing/input/code"
-        formulas_techer_path="../back/Testing/input/formular_teacher"
-        input_variables_path="../back/Testing/input/input_variables"
-        with open(code_path,"wb") as f:
-            f.write(files[0].file.read())
-        with open(formulas_techer_path,"wb") as f:
-            f.write(files[1].file.read())
-        with open(input_variables_path,"wb") as f:
-            f.write(files[2].file.read())
-        result = subprocess.run(["python", testing_main_path],capture_output=True,text=True)
+        result = subprocess.run(["python", testing_main_path], capture_output=True, text=True)
         cleaned_output = result.stdout.replace("[", "").replace("]", "").replace("\n", "")
         return JSONResponse(content={"result": cleaned_output})
     except Exception as e:
         return JSONResponse(content={"error": str(e)})
 
+
+@app.post("/executeUploadedFiles")
+async def execute_uploaded_files(files: list[UploadFile]):
+    try:
+        testing_main_path = "testing/Formulas_analize_system/analise_formula.py"
+        code_path = "testing/test_files/code.txt"
+        formulas_techer_path = "testing/test_files/teacher_formula"
+        input_variables_path = "testing/test_files/input_variables"
+        with open(code_path, "wb") as f:
+            f.write(files[0].file.read())
+        with open(formulas_techer_path, "wb") as f:
+            f.write(files[1].file.read())
+        with open(input_variables_path, "wb") as f:
+            f.write(files[2].file.read())
+        result = subprocess.run(["python", testing_main_path], capture_output=True, text=True)
+        cleaned_output = result.stdout.replace("[", "").replace("]", "").replace("\n", "")
+        return JSONResponse(content={"result": cleaned_output})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)})
+
+
 @app.post("/formAutoTest")
 async def form_auto_test(count: int):
     testing_main_path = "../Testing/main.py"
-    ListOfTest=[]
-    SingleTest=[]
-    OutPut=""
+    ListOfTest = []
+    SingleTest = []
+    OutPut = ""
     for i in range(count):
-        Input=[]
+        Input = []
         for i in range(3):
-            Input.append(random.random()*1000)
-        result=subprocess.run(["python", testing_main_path],capture_output=True,text=True,stdin=Input)
-        
+            Input.append(random.random() * 1000)
+        result = subprocess.run(["python", testing_main_path], capture_output=True, text=True, stdin=Input)

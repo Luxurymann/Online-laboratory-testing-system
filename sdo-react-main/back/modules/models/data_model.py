@@ -129,6 +129,10 @@ class TaskInfo(BaseModel):
     defName: str
 
 
+class TestCodeOutput(BaseModel):
+    formulas: str = Field(description="contains the correct formulas", max_length=1024)
+    result: str = Field(description="the result of the code", max_length=10)
+
 __all__ = ["TestModel", "CodeLengthModel", "ConstructionModel", "FunctionModel", "FormulaModel", "LinkedFormulaModel",
            "TestCaseModel", "QueryData", "CheckModel", "PyTestQueryData",
            "UserModel", "UserResponseModel", "UserRole", "UserDashboardModel", "RegisterRequestModel",

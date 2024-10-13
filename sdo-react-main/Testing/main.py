@@ -1,9 +1,9 @@
-with open('../Testing/input/input_variables', 'r') as f:
+with open('../back/testing/test_files/input_variables', 'r') as f:
     variables_teacher = [line.rstrip() for line in f]
 math_operations = ['=', '+', '-']
 formulas_teacher = []
 buff = []
-with open('../Testing/input/formular_teacher') as f:
+with open('../back/testing/test_files/teacher_formula') as f:
     for line in f:
         line = line.rstrip()
         for char1 in line:
@@ -17,7 +17,7 @@ with open('../Testing/input/formular_teacher') as f:
         buff = []
 variables_student = dict()
 formulas_student = []
-with open('../Testing/input/code', 'r') as f:
+with open('../back/testing/test_files/code.txt', 'r') as f:
     count = 0
     for line in f:
         line = line.rstrip()
