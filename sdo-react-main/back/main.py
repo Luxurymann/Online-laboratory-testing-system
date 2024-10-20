@@ -246,7 +246,9 @@ async def checking_file(title: str):
     return JSONResponse(
         content={
             "formulas": result_output[0],
-            "result": result_output[1]
+            "result": result_output[1],
+            "execution_time": result_output[2],
+            "code_length": result_output[3]
         }
     )
 

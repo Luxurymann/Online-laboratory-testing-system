@@ -4,4 +4,12 @@ b=2
 c=3
 d=a+b-c
 f=d+b
-print(d, f)
+print(d, f, 1234)
+
+
+
+
+
+
+
+

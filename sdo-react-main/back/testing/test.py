@@ -1,6 +1,7 @@
 import contextlib
 import io
 import threading
+import time
 
 
 class TeacherList:
@@ -83,6 +84,7 @@ class TeacherList:
                 self.binding_variables(formula[0], self.formulas_teacher[ind2][0])
                 self.binding_formulas(formula, self.formulas_teacher[ind2])
 
+
 def check_formulas(path_teacher_formula, path_input_variables, path_code):
     teacher_list = TeacherList()
     with open(path_teacher_formula) as f:
@@ -116,15 +118,15 @@ def check_formulas(path_teacher_formula, path_input_variables, path_code):
     for i in range(len(teacher_list.formulas_teacher)):
         if teacher_list.formulas_student.get(i, False):
             res += "".join(teacher_list.formulas_student[i]) + '\n'
-
     return res
 
 
-def execute_code(file_path: str) -> str:
+def execute_code(file_path: str) -> tuple[str, float, int]:
     with open(file_path, 'r') as file:
         code = file.read()
 
     output = io.StringIO()
+    start_time = time.time()
 
     def exec_code():
         try:
@@ -141,17 +143,16 @@ def execute_code(file_path: str) -> str:
         output.write("Execution timed out.")
         thread.join()
 
+    end_time = time.time()
+    execution_time = round(end_time - start_time, 3)
+    code_length = sum(1 for line in code.split('\n') if line.strip())
     result = output.getvalue()
 
-    return result
+    return result, execution_time, code_length
 
 
 # main testing file
-def check_file(path_teacher_formula, path_input_variables, path_code) -> tuple[str, str]:
-    test_code_output: tuple[str, str] = (
-        check_formulas(path_teacher_formula, path_input_variables, path_code),
-        execute_code(path_code)
-    )
-    return test_code_output
-
-# print(execute_code("C:\\Users\\enter\\PycharmProjects\\Online-laboratory-testing-system\\sdo-react-main\\back\\testing\\test_files\\code.txt"))
+def check_file(path_teacher_formula, path_input_variables, path_code) -> tuple[str, str, float, int]:
+    formulas_output = check_formulas(path_teacher_formula, path_input_variables, path_code)
+    code_output, execution_time, code_length = execute_code(path_code)
+    return formulas_output, code_output, execution_time, code_length
