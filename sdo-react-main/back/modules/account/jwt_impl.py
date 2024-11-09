@@ -1,16 +1,24 @@
-from modules.database.dbconnector import get_user_db
-import jwt
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+import jwt
 
-SECRET_KEY = "test"  # TODO: исправить получение из конфига
+from database.dbconnector import get_user_db
+
+
+# TODO: fix getting from config
+SECRET_KEY = "test"
 ALGORITHM = "HS256"
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="token",
+    scopes={"read_users": "Read users"},
+)
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
+    if not isinstance(data, dict):
+        raise ValueError("Data must be a dictionary")
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -21,7 +29,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     credentials_exception = HTTPException(
         status_code=401,
         detail="Invalid credentials",
@@ -32,5 +40,5 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         username: str = payload.get("sub")
         user = get_user_db(username)
         return user
-    except:
+    except Exception:
         raise credentials_exception

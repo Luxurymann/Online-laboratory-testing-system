@@ -1,11 +1,10 @@
 from typing import List, Tuple
-
-from modules.parse.parsewrapper import calc_evaluation
-from itertools import permutations
-from random import random
-import tokenize
 import io
 import re
+import tokenize
+from itertools import permutations
+from parse.parsewrapper import calc_evaluation
+from random import random
 
 
 def get_match(formula: str, lines: List[str]) -> List[str]:
@@ -23,8 +22,8 @@ def get_match(formula: str, lines: List[str]) -> List[str]:
     return matches
 
 
-def get_func_lines(filename: str, funcname: str, unique_id: str) -> List[str]:
-    with open(f'./trash/{unique_id}/{filename}', 'r') as file:
+def get_func_lines(file_name: str, func_name: str, unique_id: str) -> List[str]:
+    with open(f'./trash/{unique_id}/{file_name}', 'r') as file:
         file_lines: List[str] = file.readlines()
     func: List[str] = []
     flag: bool = True
@@ -35,7 +34,7 @@ def get_func_lines(filename: str, funcname: str, unique_id: str) -> List[str]:
             func.append(line)
         elif len(findent) >= len(indent):
             flag = True
-        if flag and re.fullmatch(r'\A\s*?def\s*?' + funcname + r'\s*?\(.*?\)\s*?:\s*?\Z', line):
+        if flag and re.fullmatch(r'\A\s*?def\s*?' + func_name + r'\s*?\(.*?\)\s*?:\s*?\Z', line):
             flag = False
             findent = indent
     return func
