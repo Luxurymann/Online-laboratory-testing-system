@@ -8,6 +8,7 @@ from fastapi.encoders import jsonable_encoder
 
 from testing.test import check_file
 from modules.database.dbconnector import *
+from modules.database.db import *
 from modules.models.data_model import *
 from modules.models.db_class import *
 from modules.test.test_main import *
@@ -43,12 +44,12 @@ async def read_root() -> HTMLResponse:
     html_content: str = "Error 404. Here is no page"
     return HTMLResponse(content=html_content, status_code=404)
 
-
+#TODO: переписать регистрацию
 @app.post("/register", response_model=UserResponseModel)
 def create_user(user: RegisterRequestModel):
     hashed_password = pwd_context.hash(user.password)
-    user_id = create_user_db(username=user.username, password=hashed_password, role='student',
-                             study_group_name=user.group_name)
+    user_id = add_user(username=user.username, password=hashed_password, role_type='student',
+                             study_group.group_name)
     payload = {"sub": user.username, "role": 'student'}
     access_token = create_access_token(data=payload)
     response = {
@@ -59,10 +60,10 @@ def create_user(user: RegisterRequestModel):
     }
     return response
 
-
+#протестировать код можно тоько после подключения БД
 @app.post("/login", response_model=UserResponseModel)
 def login_for_access_token(login_request: LoginRequestModel):
-    user = get_user_db(login_request.username)
+    user = get_user(login_request.username)
     if not user:
         raise HTTPException(
             status_code=401,
@@ -76,12 +77,12 @@ def login_for_access_token(login_request: LoginRequestModel):
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    payload = {"sub": user.username, "role": user.role}
+    payload = {"sub": user.username, "role": user.roleType}
     access_token = create_access_token(data=payload)
     response = {
         "id": user.id,
         "username": user.username,
-        "role": user.role,
+        "role": user.roleType,
         "access_token": access_token
     }
     return response
