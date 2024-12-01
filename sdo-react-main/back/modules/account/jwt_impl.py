@@ -1,4 +1,4 @@
-from modules.database.dbconnector import get_user_db
+from modules.database.db import get_user
 import jwt
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -30,7 +30,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        user = get_user_db(username)
+        user = get_user(username)
         return user
     except:
         raise credentials_exception
